@@ -55,10 +55,18 @@ const ProductSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    ProductImgs: {
+    ProductImgs: [{
+      Img1 : {
       type: String,
-      required: true,
-    },
+      },
+      Img2 : {
+      type: String,
+      },
+      Img3 : {
+      type: String,
+      },
+    }
+    ],
     ProductCategory: {
       type: String,
       required: true,
@@ -87,9 +95,9 @@ const ProductSchema = mongoose.Schema(
     ProductReviewComment: {
       type: String,
     },
-  },
-  { versionKey: false }
-);
+  created_at:{ type: Date },
+  updated_at:{ type: Date, default: Date.now }
+}, { versionKey: false },{strict: false});
 
 const Products = new mongoose.model("Products", ProductSchema);
 
