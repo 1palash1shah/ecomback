@@ -40,6 +40,10 @@ const ProductSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    ProductMRP:{
+      type: Number,
+      required:true
+    },
     ProductPrice: {
       type: Number,
       required: true,
@@ -80,6 +84,12 @@ const ProductSchema = mongoose.Schema(
     ProductBrand: {
       type: String,
       required: true,
+    },
+    ProductColor:{
+      type:String,
+    },
+    ProductPriceTag:{
+      type:String,
     },
     ProductSize: {
       type: String,
