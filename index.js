@@ -91,7 +91,7 @@ const ProductSchema = mongoose.Schema(
   { versionKey: false }
 );
 
-const Products = new mongoose.Model("Products", ProductSchema);
+const Products = new mongoose.model("Products", ProductSchema);
 
 app.post("/AddProduct", (req, res) => {
   const {
