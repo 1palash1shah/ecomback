@@ -153,36 +153,40 @@ app.post("/AddProduct", (req, res) => {
     });
 });
 
-const s3Storage = multerS3({
-  s3: s3, // s3 instance
-  bucket: process.env.CYCLIC_BUCKET_NAME, // change it as per your project requirement
-  acl: "public-read", 
-  metadata: (req, file, cb) => {
-    cb(null, { fieldname: file.fieldname });
-  },
-  key: (req, file, cb) => {
-    const fileName = Date.now() + "_" + file.fieldname + "_" + file.originalname;
-    cb(null, fileName);
-  },
-});
+// const s3Storage = multerS3({
+//   s3: s3, // s3 instance
+//   bucket: process.env.CYCLIC_BUCKET_NAME, // change it as per your project requirement
+//   acl: "public-read", 
+//   metadata: (req, file, cb) => {
+//     cb(null, { fieldname: file.fieldname });
+//   },
+//   key: (req, file, cb) => {
+//     const fileName = Date.now() + "_" + file.fieldname + "_" + file.originalname;
+//     cb(null, fileName);
+//   },
+// });
 
-const uploadImage = multer({
-  storage: s3Storage,
-  limits: {
-    fileSize: 1024 * 1024 * 2, // 2mb file size
-  },
-});
+// const uploadImage = multer({
+//   storage: s3Storage,
+//   limits: {
+//     fileSize: 1024 * 1024 * 2, // 2mb file size
+//   },
+// });
 
-app.post("/uploadImage", uploadImage.single("image"), async (req, res) => {
-  let data = {};
-  if (req.file) {
-    data.image = req.file.location;
-    console.log(req.file.location);
-  }
-  res.send(data);
-  console.log(data);
+app.put('*', async (req,res) => {
+  let filename = req.path.slice(1)
 
-});
+  console.log(typeof req.body)
+
+  await s3.putObject({
+    Body: JSON.stringify(req.body),
+    Bucket: process.env.BUCKET,
+    Key: filename,
+  }).promise()
+
+  res.set('Content-type', 'text/plain')
+  res.send('ok').end()
+})
 
 app.get("/", (req, res) => {
   res.send("GET Request Called");
