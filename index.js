@@ -93,6 +93,7 @@ const ProductSchema = mongoose.Schema(
 
 const Products = new mongoose.model("Products", ProductSchema);
 
+
 app.post("/AddProduct", (req, res) => {
   const {
     ProductName,
