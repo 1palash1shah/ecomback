@@ -161,8 +161,7 @@ const s3Storage = multerS3({
     cb(null, { fieldname: file.fieldname });
   },
   key: (req, file, cb) => {
-    const fileName =
-      Date.now() + "_" + file.fieldname + "_" + file.originalname;
+    const fileName = Date.now() + "_" + file.fieldname + "_" + file.originalname;
     cb(null, fileName);
   },
 });
