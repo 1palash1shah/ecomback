@@ -284,6 +284,22 @@ app.get("/getproduct/:id", (req, res) => {
   }
 });
 
+app.get("/getproduct/Vendor/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    Products.findOne({ VendorId: { $eq: id } })
+      .then((item) => {
+        res.send({ data: item });
+      })
+      .catch((err) => {
+        res.send("Can't Find Product");
+      });
+  } catch {
+    res.send("db error");
+  }
+});
+
+
 app.get("/", (req, res) => {
   res.send("GET Request Called");
 });
