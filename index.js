@@ -42,7 +42,10 @@ const VendorSchema = mongoose.Schema({
   VendorPassword: {
     type: String,
   },
-});
+},
+{ versionKey: false },
+{ strict: false }
+);
 
 const ProductSchema = mongoose.Schema(
   {
