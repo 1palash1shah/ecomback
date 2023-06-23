@@ -36,13 +36,13 @@ try {
 }
 
 const VendorSchema = mongoose.Schema({
-  VendorUsername:{
-    type:String,
+  VendorUsername: {
+    type: String,
   },
-  VendorPassword:{
-    type:String,
-  }
-})
+  VendorPassword: {
+    type: String,
+  },
+});
 
 const ProductSchema = mongoose.Schema(
   {
@@ -50,9 +50,9 @@ const ProductSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    ProductMRP:{
+    ProductMRP: {
       type: Number,
-      required:true
+      required: true,
     },
     ProductPrice: {
       type: Number,
@@ -95,11 +95,11 @@ const ProductSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    ProductColor:{
-      type:String,
+    ProductColor: {
+      type: String,
     },
-    ProductPriceTag:{
-      type:String,
+    ProductPriceTag: {
+      type: String,
     },
     ProductSize: {
       type: String,
@@ -108,9 +108,11 @@ const ProductSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
-    ProductReviewerUserId:[{
-     RevieweruserID:{type:String} 
-    }],
+    ProductReviewerUserId: [
+      {
+        RevieweruserID: { type: String },
+      },
+    ],
     created_at: { type: Date },
     updated_at: { type: Date, default: Date.now },
   },
@@ -121,30 +123,36 @@ const ProductSchema = mongoose.Schema(
 const Products = new mongoose.model("Products", ProductSchema);
 const Vendor = new mongoose.model("Vendor", VendorSchema);
 
-app.post('/Vendor/Login',(req,res)=>{
-  const {VendorUsername,VendorPassword}= req.body;
-  Vendor.findOne({$and:[{VendorUsername},{VendorPassword}]})
-  .then((item)=>{
-    res.send({message:"Vendor Register Successfully",data:item});
-  }).catch((err)=>{
-    res.send({message:"Vendor Registation Failed"})
-  })
-})
+app.post("/Vendor/Login", (req, res) => {
+  const { VendorUsername, VendorPassword } = req.body;
+  Vendor.findOne({ $and: [{ VendorUsername }, { VendorPassword }] })
+    .then((item) => {
+      res.send({ message: "Vendor Register Successfully", data: item });
+    })
+    .catch((err) => {
+      res.send({ message: "Vendor Registation Failed" });
+    });
+});
 
-
-app.post('/Vendor/Register',(req,res)=>{
-  const {VendorUsername,VendorPassword}= req.body;
-  const Vendors = new Vendor({
-    VendorUsername,
-    VendorPassword
-  });
-  Vendors.save()
-  .then((item)=>{
-    res.send({message:"Vendor Register Successfully",data:item});
-  }).catch((err)=>{
-    res.send({message:"Vendor Registation Failed"})
-  })
-})
+app.post("/Vendor/Register", (req, res) => {
+  try{
+    const { VendorUsername, VendorPassword } = req.body;
+    const Vendors = new Vendor({
+      VendorUsername,
+      VendorPassword,
+    });
+    Vendors.save()
+      .then((item) => {
+        res.send({ message: "Vendor Register Successfully", data: item });
+      })
+      .catch((err) => {
+        res.send({ message: "Vendor Registation Failed" });
+      });
+  }
+  catch{
+    res.send({ message: "Vendor Registation Failed" });
+  }
+});
 
 app.post("/AddProduct", (req, res) => {
   const {
@@ -154,19 +162,13 @@ app.post("/AddProduct", (req, res) => {
     ProductMainImgUrl,
     ProductShortDesc,
     ProductLongDesc,
-    ProductImgs:[{
-      Img1,
-      Img2,
-      Img3,
-    }],
+    ProductImgs: [{ Img1, Img2, Img3 }],
     ProductCategory,
     ProductSubCategory,
     ProductBrand,
     ProductSize,
     ProductQuantity,
-    ProductReviewerUserId:[{
-      RevieweruserID 
-     }], 
+    ProductReviewerUserId: [{ RevieweruserID }],
   } = req.body;
 
   const UploadProduct = new Products({
@@ -176,19 +178,23 @@ app.post("/AddProduct", (req, res) => {
     ProductMainImgUrl,
     ProductShortDesc,
     ProductLongDesc,
-    ProductImgs:[{
-      Img1,
-      Img2,
-      Img3,
-    }],
+    ProductImgs: [
+      {
+        Img1,
+        Img2,
+        Img3,
+      },
+    ],
     ProductCategory,
     ProductSubCategory,
     ProductBrand,
     ProductSize,
     ProductQuantity,
-    ProductReviewerUserId:[{
-      RevieweruserID 
-     }], 
+    ProductReviewerUserId: [
+      {
+        RevieweruserID,
+      },
+    ],
   });
   UploadProduct.save()
     .then((item) => {
@@ -200,18 +206,19 @@ app.post("/AddProduct", (req, res) => {
     });
 });
 
-app.get('/getallproduct',(req,res)=>{
-  try{
-    Products.find({}).then((item)=>{
-      res.send(item);
-    })
-    .catch((err)=>{
-      res.send("Find fun err");
-    })
-  }catch{
-    res.send('db error');
+app.get("/getallproduct", (req, res) => {
+  try {
+    Products.find({})
+      .then((item) => {
+        res.send(item);
+      })
+      .catch((err) => {
+        res.send("Find fun err");
+      });
+  } catch {
+    res.send("db error");
   }
-})
+});
 
 app.get("/", (req, res) => {
   res.send("GET Request Called");
