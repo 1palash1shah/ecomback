@@ -35,16 +35,17 @@ try {
   console.log("DB not Connected");
 }
 
-const VendorSchema = mongoose.Schema({
-  VendorUsername: {
-    type: String,
+const VendorSchema = mongoose.Schema(
+  {
+    VendorUsername: {
+      type: String,
+    },
+    VendorPassword: {
+      type: String,
+    },
   },
-  VendorPassword: {
-    type: String,
-  },
-},
-{ versionKey: false },
-{ strict: false }
+  { versionKey: false },
+  { strict: false }
 );
 
 const ProductSchema = mongoose.Schema(
@@ -116,7 +117,11 @@ const ProductSchema = mongoose.Schema(
         RevieweruserID: { type: String },
       },
     ],
-    created_at: { type: Date },
+    VendorId: {
+      type: String,
+      required: true,
+    },
+    created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
   },
   { versionKey: false },
@@ -127,23 +132,24 @@ const Products = new mongoose.model("Products", ProductSchema);
 const Vendor = new mongoose.model("Vendor", VendorSchema);
 
 app.post("/VendorLogin", (req, res) => {
-  try{console.log(req.body)
-  const { VendorUsername, VendorPassword } = req.body;
-  Vendor.findOne({ $and: [{ VendorUsername }, { VendorPassword }] })
-    .then((item) => {
-      res.send({ message: "Vendor Login Successfully", data: item });
-    })
-    .catch((err) => {
-      res.send({ message: "Vendor Login Failed" });
-    });
-  }catch{
-    res.send({ message: "Vendor Login Failed" });    
+  try {
+    console.log(req.body);
+    const { VendorUsername, VendorPassword } = req.body;
+    Vendor.findOne({ $and: [{ VendorUsername }, { VendorPassword }] })
+      .then((item) => {
+        res.send({ message: "Vendor Login Successfully", data: item });
+      })
+      .catch((err) => {
+        res.send({ message: "Vendor Login Failed" });
+      });
+  } catch {
+    res.send({ message: "Vendor Login Failed" });
   }
 });
 
 app.post("/VendorRegister", (req, res) => {
-  try{
-    console.log(req.body)
+  try {
+    console.log(req.body);
     const { VendorUsername, VendorPassword } = req.body;
     const Vendors = new Vendor({
       VendorUsername,
@@ -156,8 +162,7 @@ app.post("/VendorRegister", (req, res) => {
       .catch((err) => {
         res.send({ message: "Vendor Registation Failed" });
       });
-  }
-  catch{
+  } catch {
     res.send({ message: "Vendor Registation Failed" });
   }
 });
@@ -177,6 +182,7 @@ app.post("/AddProduct", (req, res) => {
     ProductSize,
     ProductQuantity,
     ProductReviewerUserId: [{ RevieweruserID }],
+    VendorId,
   } = req.body;
 
   const UploadProduct = new Products({
@@ -203,6 +209,7 @@ app.post("/AddProduct", (req, res) => {
         RevieweruserID,
       },
     ],
+    VendorId,
   });
   UploadProduct.save()
     .then((item) => {
@@ -218,7 +225,7 @@ app.get("/getallproduct", (req, res) => {
   try {
     Products.find({})
       .then((item) => {
-        res.send(item);
+        res.send({data:item,length:item.length()});
       })
       .catch((err) => {
         res.send("Find fun err");
