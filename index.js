@@ -134,8 +134,9 @@ app.post("/Vendor/Login", (req, res) => {
     });
 });
 
-app.post("/Vendor/Register", (req, res) => {
+app.post("/VendorRegister", (req, res) => {
   try{
+    console.log(req.body)
     const { VendorUsername, VendorPassword } = req.body;
     const Vendors = new Vendor({
       VendorUsername,
