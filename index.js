@@ -98,15 +98,9 @@ const ProductSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
-    ProductReviewRating: {
-      type: String,
-    },
-    ProductReviewName: {
-      type: String,
-    },
-    ProductReviewComment: {
-      type: String,
-    },
+    ProductReviewerUserId:[{
+     RevieweruserID:{type:String} 
+    }],
     created_at: { type: Date },
     updated_at: { type: Date, default: Date.now },
   },
@@ -134,9 +128,9 @@ app.post("/AddProduct", (req, res) => {
     ProductBrand,
     ProductSize,
     ProductQuantity,
-    ProductReviewRating,
-    ProductReviewName,
-    ProductReviewComment,
+    ProductReviewerUserId:[{
+      RevieweruserID 
+     }], 
   } = req.body;
   const UploadProduct = new Products({
     ProductName,
@@ -155,9 +149,9 @@ app.post("/AddProduct", (req, res) => {
     ProductBrand,
     ProductSize,
     ProductQuantity,
-    ProductReviewName,
-    ProductReviewRating,
-    ProductReviewComment,
+    ProductReviewerUserId:[{
+      RevieweruserID 
+     }], 
   });
   UploadProduct.save()
     .then((item) => {
