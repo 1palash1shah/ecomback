@@ -1,5 +1,5 @@
 import express from "express";
-import mongoose from "mongoose";
+import { connect, model, Schema } from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 dotenv.config();
@@ -24,18 +24,17 @@ app.use(function (req, res, next) {
 });
 
 try {
-  mongoose
-    .connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
+  connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
     .then(console.log("DB Connected"))
     .catch((err) => console.log("Error in url: ", err));
 } catch (error) {
   console.log("DB not Connected");
 }
 
-const AdminSchema = mongoose.Schema(
+const AdminSchema = Schema(
   {
     AdminUsername: {
       type: String,
@@ -48,7 +47,7 @@ const AdminSchema = mongoose.Schema(
   { strict: false }
 );
 
-const VendorSchema = mongoose.Schema(
+const VendorSchema = Schema(
   {
     VendorUsername: {
       type: String,
@@ -61,7 +60,7 @@ const VendorSchema = mongoose.Schema(
   { strict: false }
 );
 
-const ProductSchema = mongoose.Schema(
+const ProductSchema = Schema(
   {
     ProductName: {
       type: String,
@@ -134,9 +133,13 @@ const ProductSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    Status:{
-      type:String,
-      default:"Pending"
+    RewardCoin: {
+      type: Number,
+      default: 0,
+    },
+    Status: {
+      type: String,
+      default: "Pending",
     },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
@@ -145,9 +148,9 @@ const ProductSchema = mongoose.Schema(
   { strict: false }
 );
 
-const Products = new mongoose.model("Products", ProductSchema);
-const Vendor = new mongoose.model("Vendor", VendorSchema);
-const Admin = new mongoose.model("Admin", AdminSchema);
+const Products = new model("Products", ProductSchema);
+const Vendor = new model("Vendor", VendorSchema);
+const Admin = new model("Admin", AdminSchema);
 
 app.post("/AdminLogin", (req, res) => {
   try {
@@ -225,23 +228,13 @@ app.post("/AddProduct", (req, res) => {
     ProductMainImgUrl,
     ProductShortDesc,
     ProductLongDesc,
-    ProductImgs: [
-      {
-        Img1,
-        Img2,
-        Img3,
-      },
-    ],
+    ProductImgs: [{ Img1, Img2, Img3 }],
     ProductCategory,
     ProductSubCategory,
     ProductBrand,
     ProductSize,
     ProductQuantity,
-    ProductReviewerUserId: [
-      {
-        RevieweruserID,
-      },
-    ],
+    ProductReviewerUserId: [{ RevieweruserID }],
     VendorId,
   });
   UploadProduct.save()
@@ -256,8 +249,7 @@ app.post("/AddProduct", (req, res) => {
 
 app.get("/getallproduct", (req, res) => {
   try {
-    
-    Products.find({ Status: { $eq: "Accepted" } })
+    Products.find({ Status: { $eq: "Accepted" } }).sort({created_at:-1})
       .then((item) => {
         res.send({ data: item });
       })
@@ -284,10 +276,10 @@ app.get("/getproduct/:id", (req, res) => {
   }
 });
 
-app.get("/getproduct/Vendor/:id", (req, res) => {
+app.get("/getallproduct/Vendor/:id", (req, res) => {
   try {
     const { id } = req.params;
-    Products.find({ VendorId: { $eq: id } })
+    Products.find({ VendorId: { $eq: id } }).sort({created_at:-1})
       .then((item) => {
         res.send({ data: item });
       })
@@ -299,6 +291,19 @@ app.get("/getproduct/Vendor/:id", (req, res) => {
   }
 });
 
+app.get("/getallproduct/Admin", (req, res) => {
+  try {
+    Products.find({})
+      .then((item) => {
+        res.send({ data: item });
+      })
+      .catch((err) => {
+        res.send("Can't Find Product");
+      });
+  } catch {
+    res.send("db error");
+  }
+});
 
 app.get("/", (req, res) => {
   res.send("GET Request Called");
