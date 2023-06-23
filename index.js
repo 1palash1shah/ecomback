@@ -225,7 +225,7 @@ app.get("/getallproduct", (req, res) => {
   try {
     Products.find({})
       .then((item) => {
-        res.send({data:item,length:item.length()});
+        res.send({data:item});
       })
       .catch((err) => {
         res.send("Find fun err");
