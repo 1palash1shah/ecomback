@@ -152,8 +152,8 @@ app.post("/AddProduct", (req, res) => {
     ProductReviewComment,
   });
   UploadProduct.save()
-    .then((res) => {
-      res.status(200).send({ message: "Item Added", Data: res });
+    .then((item) => {
+      res.status(200).send({ message: "Item Added", Data: item });
     })
     .catch((err) => {
       console.log("unable to save to db", err);
