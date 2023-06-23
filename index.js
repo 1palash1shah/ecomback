@@ -119,6 +119,7 @@ const Products = new mongoose.model("Products", ProductSchema);
 app.post("/AddProduct", (req, res) => {
   const {
     ProductName,
+    ProductMRP,
     ProductPrice,
     ProductMainImgUrl,
     ProductShortDesc,
@@ -135,6 +136,7 @@ app.post("/AddProduct", (req, res) => {
   } = req.body;
   const UploadProduct = new Products({
     ProductName,
+    ProductMRP,
     ProductPrice,
     ProductMainImgUrl,
     ProductShortDesc,
