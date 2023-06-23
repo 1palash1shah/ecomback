@@ -35,6 +35,19 @@ try {
   console.log("DB not Connected");
 }
 
+const AdminSchema = mongoose.Schema(
+  {
+    AdminUsername: {
+      type: String,
+    },
+    AdminPassword: {
+      type: String,
+    },
+  },
+  { versionKey: false },
+  { strict: false }
+);
+
 const VendorSchema = mongoose.Schema(
   {
     VendorUsername: {
@@ -121,6 +134,10 @@ const ProductSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    Status:{
+      type:String,
+      default:"Pending"
+    },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
   },
@@ -130,6 +147,22 @@ const ProductSchema = mongoose.Schema(
 
 const Products = new mongoose.model("Products", ProductSchema);
 const Vendor = new mongoose.model("Vendor", VendorSchema);
+const Admin = new mongoose.model("Admin", AdminSchema);
+
+app.post("/AdminLogin", (req, res) => {
+  try {
+    const { AdminUsername, AdminPassword } = req.body;
+    Admin.findOne({ $and: [{ AdminUsername }, { AdminPassword }] })
+      .then((item) => {
+        res.send({ message: "Admin Login Successfully", data: item });
+      })
+      .catch((err) => {
+        res.send({ message: "Can't Find Admin" });
+      });
+  } catch {
+    res.send({ message: "Admin Login Failed" });
+  }
+});
 
 app.post("/VendorLogin", (req, res) => {
   try {
@@ -140,7 +173,7 @@ app.post("/VendorLogin", (req, res) => {
         res.send({ message: "Vendor Login Successfully", data: item });
       })
       .catch((err) => {
-        res.send({ message: "Vendor Login Failed" });
+        res.send({ message: "Can't Find Vendor" });
       });
   } catch {
     res.send({ message: "Vendor Login Failed" });
@@ -157,13 +190,13 @@ app.post("/VendorRegister", (req, res) => {
     });
     Vendors.save()
       .then((item) => {
-        res.send({ message: "Vendor Register Successfully", data: item });
+        res.send({ message: "Vendor Registration Successfully", data: item });
       })
       .catch((err) => {
-        res.send({ message: "Vendor Registation Failed" });
+        res.send({ message: "Registration Failed" });
       });
   } catch {
-    res.send({ message: "Vendor Registation Failed" });
+    res.send({ message: "Registration Failed" });
   }
 });
 
@@ -213,7 +246,7 @@ app.post("/AddProduct", (req, res) => {
   });
   UploadProduct.save()
     .then((item) => {
-      res.send({ message: "Item Added", Data: item });
+      res.send({ message: "Product Added", Data: item });
     })
     .catch((err) => {
       console.log("unable to save to db", err);
@@ -223,12 +256,27 @@ app.post("/AddProduct", (req, res) => {
 
 app.get("/getallproduct", (req, res) => {
   try {
-    Products.find({})
+    Products.findMany({},{Status:"Accepted"})
       .then((item) => {
-        res.send({data:item});
+        res.send({ data: item });
       })
       .catch((err) => {
-        res.send("Find fun err");
+        res.send("Can't Find Product");
+      });
+  } catch {
+    res.send("db error");
+  }
+});
+
+app.get("/getproduct/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    Products.findOne({ _id: id })
+      .then((item) => {
+        res.send({ data: item });
+      })
+      .catch((err) => {
+        res.send("Can't Find Product");
       });
   } catch {
     res.send("db error");
