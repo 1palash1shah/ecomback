@@ -287,7 +287,7 @@ app.get("/getproduct/:id", (req, res) => {
 app.get("/getproduct/Vendor/:id", (req, res) => {
   try {
     const { id } = req.params;
-    Products.findOne({ VendorId: { $eq: id } })
+    Products.find({ VendorId: { $eq: id } })
       .then((item) => {
         res.send({ data: item });
       })
