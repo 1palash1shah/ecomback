@@ -256,7 +256,7 @@ app.post("/AddProduct", (req, res) => {
 
 app.get("/getallproduct", (req, res) => {
   try {
-    Products.find({Status:"xyz"}).toArray()
+    Products.find({Status:"Accepted"})
       .then((item) => {
         res.send({ data: item });
       })
