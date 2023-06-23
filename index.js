@@ -162,7 +162,18 @@ app.post("/AddProduct", (req, res) => {
       res.send("unable to save to database");
     });
 });
-
+app.get('/getallproduct',(req,res)=>{
+  try{
+    Products.find({}).then((item)=>{
+      res.send(item);
+    })
+    .catch((err)=>{
+      res.send("Find fun err");
+    })
+  }catch{
+    res.send('db error');
+  }
+})
 app.get("/", (req, res) => {
   res.send("GET Request Called");
 });
