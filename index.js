@@ -126,15 +126,19 @@ const ProductSchema = mongoose.Schema(
 const Products = new mongoose.model("Products", ProductSchema);
 const Vendor = new mongoose.model("Vendor", VendorSchema);
 
-app.post("/Vendor/Login", (req, res) => {
+app.post("/VendorLogin", (req, res) => {
+  try{console.log(req.body)
   const { VendorUsername, VendorPassword } = req.body;
   Vendor.findOne({ $and: [{ VendorUsername }, { VendorPassword }] })
     .then((item) => {
-      res.send({ message: "Vendor Register Successfully", data: item });
+      res.send({ message: "Vendor Login Successfully", data: item });
     })
     .catch((err) => {
-      res.send({ message: "Vendor Registation Failed" });
+      res.send({ message: "Vendor Login Failed" });
     });
+  }catch{
+    res.send({ message: "Vendor Login Failed" });    
+  }
 });
 
 app.post("/VendorRegister", (req, res) => {
