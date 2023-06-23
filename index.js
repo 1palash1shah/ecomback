@@ -256,7 +256,8 @@ app.post("/AddProduct", (req, res) => {
 
 app.get("/getallproduct", (req, res) => {
   try {
-    Products.find({Status:"Accepted"})
+    
+    Products.find({ Status: { $eq: "Accepted" } })
       .then((item) => {
         res.send({ data: item });
       })
