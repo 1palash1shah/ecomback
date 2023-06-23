@@ -153,11 +153,11 @@ app.post("/AddProduct", (req, res) => {
   });
   UploadProduct.save()
     .then((item) => {
-      res.status(200).send({ message: "Item Added", Data: item });
+      res.send({ message: "Item Added", Data: item });
     })
     .catch((err) => {
       console.log("unable to save to db", err);
-      res.status(402).send("unable to save to database");
+      res.send("unable to save to database");
     });
 });
 
