@@ -34,6 +34,16 @@ try {
 } catch (error) {
   console.log("DB not Connected");
 }
+
+const VendorSchema = mongoose.Schema({
+  VendorUsername:{
+    type:String,
+  },
+  VendorPassword:{
+    type:String,
+  }
+})
+
 const ProductSchema = mongoose.Schema(
   {
     ProductName: {
@@ -109,6 +119,32 @@ const ProductSchema = mongoose.Schema(
 );
 
 const Products = new mongoose.model("Products", ProductSchema);
+const Vendor = new mongoose.model("Vendor", VendorSchema);
+
+app.post('/Vendor/Login',(req,res)=>{
+  const {VendorUsername,VendorPassword}= req.body;
+  Vendor.findOne({$and:[{VendorUsername},{VendorPassword}]})
+  .then((item)=>{
+    res.send({message:"Vendor Register Successfully",data:item});
+  }).catch((err)=>{
+    res.send({message:"Vendor Registation Failed"})
+  })
+})
+
+
+app.post('/Vendor/Register',(req,res)=>{
+  const {VendorUsername,VendorPassword}= req.body;
+  const Vendors = new Vendor({
+    VendorUsername,
+    VendorPassword
+  });
+  Vendors.save()
+  .then((item)=>{
+    res.send({message:"Vendor Register Successfully",data:item});
+  }).catch((err)=>{
+    res.send({message:"Vendor Registation Failed"})
+  })
+})
 
 app.post("/AddProduct", (req, res) => {
   const {
@@ -132,6 +168,7 @@ app.post("/AddProduct", (req, res) => {
       RevieweruserID 
      }], 
   } = req.body;
+
   const UploadProduct = new Products({
     ProductName,
     ProductMRP,
@@ -162,6 +199,7 @@ app.post("/AddProduct", (req, res) => {
       res.send("unable to save to database");
     });
 });
+
 app.get('/getallproduct',(req,res)=>{
   try{
     Products.find({}).then((item)=>{
@@ -174,6 +212,7 @@ app.get('/getallproduct',(req,res)=>{
     res.send('db error');
   }
 })
+
 app.get("/", (req, res) => {
   res.send("GET Request Called");
 });
