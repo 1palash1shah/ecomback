@@ -62,8 +62,8 @@ const VendorSchema = Schema(
 
 const CustomerSchema = Schema(
   {
-    FullName:{
-      type:String
+    FullName: {
+      type: String,
     },
     Email: {
       type: String,
@@ -171,7 +171,7 @@ const Customer = new model("Customer", CustomerSchema);
 
 app.post("/Login", (req, res) => {
   try {
-    const { Email,Password } = req.body;
+    const { Email, Password } = req.body;
     Customer.findOne({ $and: [{ Email }, { Password }] })
       .then((item) => {
         res.send({ message: "Login Successfully", data: item });
@@ -186,12 +186,13 @@ app.post("/Login", (req, res) => {
 
 app.post("/Register", (req, res) => {
   try {
-    const { Email,Password } = req.body;
+    const { Email, Password } = req.body;
     const customers = new Customer({
-        Email,
-        Password
-    })
-    customers.save()
+      Email,
+      Password,
+    });
+    customers
+      .save()
       .then((item) => {
         res.send({ message: "User Registered", data: item });
       })
@@ -206,7 +207,7 @@ app.post("/Register", (req, res) => {
 app.post("/AdminLogin", (req, res) => {
   try {
     const { AdminUsername, AdminPassword } = req.body;
-    Admin.findOne({ $and: [{$AdminUsername: AdminUsername }, {$AdminPassword: AdminPassword }] })
+    Admin.findOne({ $and: [{ AdminUsername: AdminUsername }, { AdminPassword: AdminPassword }] })
       .then((item) => {
         console.log(item);
         res.send({ message: "Admin Login Successfully", data: item });
