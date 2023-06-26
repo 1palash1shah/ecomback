@@ -207,13 +207,14 @@ app.post("/Register", (req, res) => {
 app.post("/AdminLogin", (req, res) => {
   try {
     const { AdminUsername, AdminPassword } = req.body;
+    console.log(req.body);
     Admin.findOne({ $and: [{ AdminUsername: AdminUsername }, { AdminPassword: AdminPassword }] })
       .then((item) => {
         console.log(item);
         res.send({ message: "Admin Login Successfully", data: item });
       })
       .catch((err) => {
-        res.send({ message: "Can't Find Admin" });
+        res.send({ message: "Admin Incorrect" });
       });
   } catch {
     res.send({ message: "Admin Login Failed" });
