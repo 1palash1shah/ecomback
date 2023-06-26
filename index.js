@@ -373,6 +373,21 @@ app.get("/getallproduct/Admin", (req, res) => {
   }
 });
 
+app.post("/ProductUpdateStatus", (req, res) => {
+  const {id,Statusmsg} = req.body;
+  try {
+    Products.updateOne({_id:id},{Status:Statusmsg})
+      .then((item) => {
+        res.send({ message:"Update Successfully" });
+      })
+      .catch((err) => {
+        res.send({message:"Can't Update Product"});
+      });
+  } catch {
+    res.send("db error");
+  }
+});
+
 app.get("/", (req, res) => {
   res.send("GET Request Called");
 });
