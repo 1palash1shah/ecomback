@@ -207,10 +207,8 @@ app.post("/Register", (req, res) => {
 app.post("/AdminLogin", (req, res) => {
   try {
     const { AdminUsername, AdminPassword } = req.body;
-    console.log(req.body);
-    Admin.findOne({ $and: [{ AdminUsername: AdminUsername }, { AdminPassword: AdminPassword }] })
+    Admin.findOne({ $and: [{ AdminUsername }, { AdminPassword }] })
       .then((item) => {
-        console.log(item);
         res.send({ message: "Admin Login Successfully", data: item });
       })
       .catch((err) => {
