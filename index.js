@@ -361,7 +361,7 @@ app.get("/getallproduct/Vendor/:id", (req, res) => {
 
 app.get("/getallproduct/Admin", (req, res) => {
   try {
-    Products.find().toArray()
+    Products.find()
       .then((item) => {
         res.send({ data: item });
       })
