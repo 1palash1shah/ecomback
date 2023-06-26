@@ -60,6 +60,22 @@ const VendorSchema = Schema(
   { strict: false }
 );
 
+const CustomerSchema = Schema(
+  {
+    FullName:{
+      type:String
+    },
+    Email: {
+      type: String,
+    },
+    Password: {
+      type: String,
+    },
+  },
+  { versionKey: false },
+  { strict: false }
+);
+
 const ProductSchema = Schema(
   {
     ProductName: {
@@ -151,11 +167,46 @@ const ProductSchema = Schema(
 const Products = new model("Products", ProductSchema);
 const Vendor = new model("Vendor", VendorSchema);
 const Admin = new model("Admin", AdminSchema);
+const Customer = new model("Customer", CustomerSchema);
+
+app.post("/Login", (req, res) => {
+  try {
+    const { Email,Password } = req.body;
+    Customer.findOne({ $and: [{ Email }, { Password }] })
+      .then((item) => {
+        res.send({ message: "Login Successfully", data: item });
+      })
+      .catch((err) => {
+        res.send({ message: "Username or Password Incorrect" });
+      });
+  } catch {
+    res.send({ message: "Customer Login Failed" });
+  }
+});
+
+app.post("/Register", (req, res) => {
+  try {
+    const { Email,Password } = req.body;
+    const customers = new Customer({
+        Email,
+        Password
+    })
+    customers.save()
+      .then((item) => {
+        res.send({ message: "User Registered", data: item });
+      })
+      .catch((err) => {
+        res.send({ message: "Try Again" });
+      });
+  } catch {
+    res.send({ message: "Register Failed" });
+  }
+});
 
 app.post("/AdminLogin", (req, res) => {
   try {
     const { AdminUsername, AdminPassword } = req.body;
-    Admin.findOne({ $and: [{ AdminUsername }, { AdminPassword }] })
+    Admin.findOne({ $or: [{ AdminUsername }, { AdminPassword }] })
       .then((item) => {
         res.send({ message: "Admin Login Successfully", data: item });
       })
@@ -169,7 +220,6 @@ app.post("/AdminLogin", (req, res) => {
 
 app.post("/VendorLogin", (req, res) => {
   try {
-    console.log(req.body);
     const { VendorUsername, VendorPassword } = req.body;
     Vendor.findOne({ $and: [{ VendorUsername }, { VendorPassword }] })
       .then((item) => {
@@ -249,7 +299,8 @@ app.post("/AddProduct", (req, res) => {
 
 app.get("/getallproduct", (req, res) => {
   try {
-    Products.find({ Status: { $eq: "Accepted" } }).sort({created_at:-1})
+    Products.find({ Status: { $eq: "Accepted" } })
+      .sort({ created_at: -1 })
       .then((item) => {
         res.send({ data: item });
       })
@@ -279,7 +330,8 @@ app.get("/getproduct/:id", (req, res) => {
 app.get("/getallproduct/Vendor/:id", (req, res) => {
   try {
     const { id } = req.params;
-    Products.find({ VendorId: { $eq: id } }).sort({created_at:-1})
+    Products.find({ VendorId: { $eq: id } })
+      .sort({ created_at: -1 })
       .then((item) => {
         res.send({ data: item });
       })
