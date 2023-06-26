@@ -298,6 +298,21 @@ app.post("/AddProduct", (req, res) => {
     });
 });
 
+app.delete('/deleteProduct/:id',(req,res)=>{
+  const {id} = req.params;
+  try{
+    Products.deleteOne({_id:id})
+    .then((item)=>{
+      res.send({ message:"Item Deleted" });
+    })
+    .catch((err)=>{
+      res.send({message:"Error in Deleting"});
+    })
+  }catch{
+    res.send({message:"Error in Product Delete"});
+  }
+});
+
 app.get("/getallproduct", (req, res) => {
   try {
     Products.find({ Status: { $eq: "Accepted" } })
@@ -346,7 +361,7 @@ app.get("/getallproduct/Vendor/:id", (req, res) => {
 
 app.get("/getallproduct/Admin", (req, res) => {
   try {
-    Products.find({})
+    Products.find().toArray()
       .then((item) => {
         res.send({ data: item });
       })
