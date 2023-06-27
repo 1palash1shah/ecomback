@@ -418,6 +418,16 @@ app.get("/", (req, res) => {
 });
 
 app.get("/VendorList", (req, res) => {
-  Vendor.find();
+  try{
+    Vendor.find()
+      .then((item) => {
+        res.send({ data: item });
+      })
+      .catch((err) => {
+        res.send("Can't Find Product");
+      });
+  } catch {
+    res.send("db error");
+  }
 });
 app.listen(PORT, () => console.log("server is running on " + PORT));
