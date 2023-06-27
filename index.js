@@ -62,14 +62,29 @@ const VendorSchema = Schema(
 
 const CustomerSchema = Schema(
   {
-    FullName: {
+    FirstName: {
       type: String,
+      required: true,
+    },
+    LastName: {
+      type: String,
+      required: true,
     },
     Email: {
       type: String,
+      reqired: true,
+    },
+    Mobile: {
+      type: Number,
+      reqired: true,
+    },
+    Gender: {
+      type: String,
+      reqired: true,
     },
     Password: {
       type: String,
+      required: true,
     },
   },
   { versionKey: false },
@@ -186,9 +201,13 @@ app.post("/Login", (req, res) => {
 
 app.post("/Register", (req, res) => {
   try {
-    const { Email, Password } = req.body;
+    const { FirstName, LastName, Email, Mobile, Gender, Password } = req.body;
     const customers = new Customer({
+      FirstName,
+      LastName,
       Email,
+      Mobile,
+      Gender,
       Password,
     });
     customers
@@ -298,18 +317,18 @@ app.post("/AddProduct", (req, res) => {
     });
 });
 
-app.delete('/deleteProduct/:id',(req,res)=>{
-  const {id} = req.params;
-  try{
-    Products.deleteOne({_id:id})
-    .then((item)=>{
-      res.send({ message:"Item Deleted" });
-    })
-    .catch((err)=>{
-      res.send({message:"Error in Deleting"});
-    })
-  }catch{
-    res.send({message:"Error in Product Delete"});
+app.delete("/deleteProduct/:id", (req, res) => {
+  const { id } = req.params;
+  try {
+    Products.deleteOne({ _id: id })
+      .then((item) => {
+        res.send({ message: "Item Deleted" });
+      })
+      .catch((err) => {
+        res.send({ message: "Error in Deleting" });
+      });
+  } catch {
+    res.send({ message: "Error in Product Delete" });
   }
 });
 
@@ -374,14 +393,14 @@ app.get("/getallproduct/Admin", (req, res) => {
 });
 
 app.post("/ProductUpdateStatus", (req, res) => {
-  const {id,Statusmsg} = req.body;
+  const { id, Statusmsg } = req.body;
   try {
-    Products.updateOne({_id:id},{Status:Statusmsg})
+    Products.updateOne({ _id: id }, { Status: Statusmsg })
       .then((item) => {
-        res.send({ message:"Update Successfully" });
+        res.send({ message: "Update Successfully" });
       })
       .catch((err) => {
-        res.send({message:"Can't Update Product"});
+        res.send({ message: "Can't Update Product" });
       });
   } catch {
     res.send("db error");
@@ -392,4 +411,7 @@ app.get("/", (req, res) => {
   res.send("GET Request Called");
 });
 
+app.get("/VendorList", (req, res) => {
+  Vendor.find();
+});
 app.listen(PORT, () => console.log("server is running on " + PORT));
