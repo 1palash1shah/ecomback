@@ -189,8 +189,14 @@ app.post("/Login", (req, res) => {
     const { Email, Password } = req.body;
     Customer.findOne({ $and: [{ Email }, { Password }] })
       .then((item) => {
-        res.send({ message: "Login Successfully", data: item });
-      })
+        if(item !== null){
+
+          res.send({ message: "Login Successfully", data: item,success:true });
+        }else{
+          res.send({ message: "Username or Password Incorrect", data: item ,success:false});
+        }
+      }
+      )
       .catch((err) => {
         res.send({ message: "Username or Password Incorrect" });
       });
@@ -205,7 +211,7 @@ app.post("/Register", (req, res) => {
     const customers = new Customer({
       FirstName,
       LastName,
-      Email,
+      Email, 
       Mobile,
       Gender,
       Password,
