@@ -49,6 +49,12 @@ const AdminSchema = Schema(
 
 const VendorSchema = Schema(
   {
+    VendorFirstName: {
+      type: String,
+    },
+    VendorLastName: {
+      type: String,
+    },
     VendorUsername: {
       type: String,
     },
@@ -189,14 +195,20 @@ app.post("/Login", (req, res) => {
     const { Email, Password } = req.body;
     Customer.findOne({ $and: [{ Email }, { Password }] })
       .then((item) => {
-        if(item !== null){
-
-          res.send({ message: "Login Successfully", data: item,success:true });
-        }else{
-          res.send({ message: "Username or Password Incorrect", data: item ,success:false});
+        if (item !== null) {
+          res.send({
+            message: "Login Successfully",
+            data: item,
+            success: true,
+          });
+        } else {
+          res.send({
+            message: "Username or Password Incorrect",
+            data: item,
+            success: false,
+          });
         }
-      }
-      )
+      })
       .catch((err) => {
         res.send({ message: "Username or Password Incorrect" });
       });
@@ -211,7 +223,7 @@ app.post("/Register", (req, res) => {
     const customers = new Customer({
       FirstName,
       LastName,
-      Email, 
+      Email,
       Mobile,
       Gender,
       Password,
@@ -234,7 +246,12 @@ app.post("/AdminLogin", (req, res) => {
     const { AdminUsername, AdminPassword } = req.body;
     Admin.findOne({ $and: [{ AdminUsername }, { AdminPassword }] })
       .then((item) => {
-        res.send({ message: "Admin Login Successfully", data: item });
+        if(item !== null ){
+          res.send({ message: "Admin Login Successfully", data: item });
+        }
+        else{
+          res.send({ message: "Username or Password Incorrect", data: item });
+        }
       })
       .catch((err) => {
         res.send({ message: "Admin Incorrect" });
@@ -249,7 +266,12 @@ app.post("/VendorLogin", (req, res) => {
     const { VendorUsername, VendorPassword } = req.body;
     Vendor.findOne({ $and: [{ VendorUsername }, { VendorPassword }] })
       .then((item) => {
-        res.send({ message: "Vendor Login Successfully", data: item });
+        if(item !== null){
+          res.send({ message: "Vendor Login Successfully", data: item });
+        }
+        else{
+          res.send({ message: "Username or Password Incorrect", data: item });
+        }
       })
       .catch((err) => {
         res.send({ message: "Can't Find Vendor" });
@@ -262,8 +284,15 @@ app.post("/VendorLogin", (req, res) => {
 app.post("/VendorRegister", (req, res) => {
   try {
     console.log(req.body);
-    const { VendorUsername, VendorPassword } = req.body;
+    const {
+      VendorFirstName,
+      VendorLastName,
+      VendorUsername,
+      VendorPassword,
+    } = req.body;
     const Vendors = new Vendor({
+      VendorFirstName,
+      VendorLastName,
       VendorUsername,
       VendorPassword,
     });
@@ -295,7 +324,7 @@ app.post("/AddProduct", (req, res) => {
     ProductQuantity,
     VendorId,
   } = req.body;
-console.log(req.body);
+  console.log(req.body);
   const UploadProduct = new Products({
     ProductName,
     ProductMRP,
@@ -382,9 +411,9 @@ app.get("/getproduct/:id", (req, res) => {
 });
 
 app.get("/getallproduct/Vendor/:id", (req, res) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
-    Products.find({ VendorId: { $eq: id } })
+    Products.find({ VendorId: id })
       .sort({ created_at: -1 })
       .then((item) => {
         res.send({ data: item });
@@ -431,7 +460,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/VendorList", (req, res) => {
-  try{
+  try {
     Vendor.find()
       .then((item) => {
         res.send({ data: item });
