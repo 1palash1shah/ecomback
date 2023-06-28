@@ -293,10 +293,9 @@ app.post("/AddProduct", (req, res) => {
     ProductBrand,
     ProductSize,
     ProductQuantity,
-    ProductReviewerUserId: [{ RevieweruserID }],
     VendorId,
   } = req.body;
-
+console.log(req.body);
   const UploadProduct = new Products({
     ProductName,
     ProductMRP,
@@ -310,7 +309,6 @@ app.post("/AddProduct", (req, res) => {
     ProductBrand,
     ProductSize,
     ProductQuantity,
-    ProductReviewerUserId: [{ RevieweruserID }],
     VendorId,
   });
   UploadProduct.save()
@@ -335,6 +333,21 @@ app.delete("/deleteProduct/:id", (req, res) => {
       });
   } catch {
     res.send({ message: "Error in Product Delete" });
+  }
+});
+
+app.get("/getallproduct", (req, res) => {
+  try {
+    Products.find({ Status: { $eq: "Accepted" } })
+      .sort({ created_at: -1 })
+      .then((item) => {
+        res.send({ data: item });
+      })
+      .catch((err) => {
+        res.send("Can't Find Product");
+      });
+  } catch {
+    res.send("db error");
   }
 });
 
@@ -430,4 +443,5 @@ app.get("/VendorList", (req, res) => {
     res.send("db error");
   }
 });
+
 app.listen(PORT, () => console.log("server is running on " + PORT));
