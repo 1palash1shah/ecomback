@@ -101,27 +101,21 @@ const ProductSchema = Schema(
   {
     ProductName: {
       type: String,
-      required: true,
     },
     ProductMRP: {
       type: Number,
-      required: true,
     },
     ProductPrice: {
       type: Number,
-      required: true,
     },
     ProductMainImgUrl: {
       type: String,
-      required: true,
     },
     ProductShortDesc: {
       type: String,
-      required: true,
     },
     ProductLongDesc: {
       type: String,
-      required: true,
     },
     ProductImgs: [
       {
@@ -138,15 +132,12 @@ const ProductSchema = Schema(
     ],
     ProductCategory: {
       type: String,
-      required: true,
     },
     ProductSubCategory: {
       type: String,
-      required: true,
     },
     ProductBrand: {
       type: String,
-      required: true,
     },
     ProductColor: {
       type: String,
@@ -159,7 +150,6 @@ const ProductSchema = Schema(
     },
     ProductQuantity: {
       type: Number,
-      required: true,
     },
     ProductReviewerUserId: [
       {
@@ -168,7 +158,6 @@ const ProductSchema = Schema(
     ],
     VendorId: {
       type: String,
-      required: true,
     },
     RewardCoin: {
       type: Number,
@@ -321,6 +310,8 @@ app.post("/AddProduct", (req, res) => {
     ProductSubCategory,
     ProductBrand,
     ProductSize,
+    ProductColor,
+    ProductPriceTag,
     ProductQuantity,
     VendorId,
   } = req.body;
@@ -337,6 +328,8 @@ app.post("/AddProduct", (req, res) => {
     ProductSubCategory,
     ProductBrand,
     ProductSize,
+    ProductColor,
+    ProductPriceTag,
     ProductQuantity,
     VendorId,
   });
