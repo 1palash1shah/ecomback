@@ -305,7 +305,7 @@ app.post("/AddProduct", (req, res) => {
     ProductMainImgUrl,
     ProductShortDesc,
     ProductLongDesc,
-    ProductImgs: [{ Img1, Img2, Img3 }],
+    ProductImgs: { Img1, Img2, Img3 },
     ProductCategory,
     ProductSubCategory,
     ProductBrand,
