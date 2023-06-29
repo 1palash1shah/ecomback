@@ -447,6 +447,20 @@ app.post("/ProductUpdateStatus", (req, res) => {
     res.send("db error");
   }
 });
+app.post("/UpdateProduct", (req, res) => {
+  const {_id} = req.body;
+  try {
+    Products.updateOne({ _id: _id }, req.body)
+      .then((item) => {
+        res.send({ message: "Update Successfully" });
+      })
+      .catch((err) => {
+        res.send({ message: "Can't Update Product" });
+      });
+  } catch {
+    res.send("db error");
+  }
+});
 
 app.get("/", (req, res) => {
   res.send("GET Request Called");
