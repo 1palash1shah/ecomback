@@ -174,10 +174,47 @@ const ProductSchema = Schema(
   { strict: false }
 );
 
+const OrderSchema = Schema({
+  UserId:{
+    type: String,
+  },
+  ProductId:{
+    type: String,
+  },
+  ProductName: {
+    type: String,
+  },
+  ProductPrice: {
+    type: Number,
+  },
+  ProductColor: {
+    type: String,
+  },
+  ProductSize: {
+    type: String,
+  },
+  ProductQuantity: {
+    type: Number,
+  },
+  VendorId: {
+    type: String,
+  },
+  Status: {
+    type: String,
+    default: "Pending",
+  },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
+},
+{ versionKey: false },
+{ strict: false }
+);
+
 const Products = new model("Products", ProductSchema);
 const Vendor = new model("Vendor", VendorSchema);
 const Admin = new model("Admin", AdminSchema);
 const Customer = new model("Customer", CustomerSchema);
+const Orders = new model("Orders", OrderSchema);
 
 app.post("/Login", (req, res) => {
   try {
@@ -231,6 +268,7 @@ app.post("/Register", (req, res) => {
 });
 
 app.post("/AdminLogin", (req, res) => {
+  console.log(req.body);
   try {
     const { AdminUsername, AdminPassword } = req.body;
     Admin.findOne({ $and: [{ AdminUsername }, { AdminPassword }] })
@@ -358,6 +396,21 @@ app.delete("/deleteProduct/:id", (req, res) => {
   }
 });
 
+app.delete("/Orders/delete/:id", (req, res) => {
+  const { id } = req.params;
+  try {
+    Orders.deleteOne({ _id: id })
+      .then((item) => {
+        res.send({ message: "Item Deleted" });
+      })
+      .catch((err) => {
+        res.send({ message: "Error in Deleting" });
+      });
+  } catch {
+    res.send({ message: "Error in Product Delete" });
+  }
+});
+
 app.get("/getallproduct", (req, res) => {
   try {
     Products.find({ Status: { $eq: "Accepted" } })
@@ -466,6 +519,46 @@ app.get("/", (req, res) => {
   res.send("GET Request Called");
 });
 
+app.post("/Order/Placed", async (req, res) => {
+  console.log(req.body)
+  try {
+    await Promise.all(req.body.map(async (item) => {
+      const {
+        UserId,
+        ProductName,
+        ProductPrice,
+        ProductColor,
+        ProductSize,
+        ProductQuantity,
+        VendorId,
+        _id,
+      } = item;
+
+      const Order = new Orders({
+        UserId,
+        ProductName,
+        ProductPrice,
+        ProductColor,
+        ProductSize,
+        ProductQuantity,
+        VendorId,
+        ProductId: _id,
+      });
+
+      // Save the document to the database
+      await Order.save();
+    }));
+
+    // Send a success response
+    res.send({ message: "Order Placed" });
+  } catch (error) {
+    // Handle errors and send a failure response
+    console.error(error);
+    res.status(500).send({ message: "Order Fail" });
+  }
+});
+
+
 app.get("/VendorList", (req, res) => {
   try {
     Vendor.find()
@@ -477,6 +570,24 @@ app.get("/VendorList", (req, res) => {
       });
   } catch {
     res.send("db error");
+  }
+});
+
+app.get("/Orders/List", async (req, res) => {
+  try {
+    // Execute the query and await the result
+    const resp = await Orders.find();
+
+    // Check if there is any data
+    if (resp && resp.length > 0) {
+      res.send({ data: resp });
+    } else {
+      // If no data is found
+      res.send({ message: "No orders found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "DB error" });
   }
 });
 
