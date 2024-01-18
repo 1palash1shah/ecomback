@@ -1,3 +1,6 @@
-./node_modules
-./.env
-./myfun.js
+node_modules/
+.env
+myfun.js
+oldindex.js
+# Local Netlify folder
+.netlify

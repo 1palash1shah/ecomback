@@ -1,11 +1,12 @@
 import express from "express";
-import { connect, model, Schema } from "mongoose";
+import mongoose,{ model, Schema } from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
+import ServerlessHttp from "serverless-http";
 dotenv.config();
-
 const PORT = process.env.PORT || 3001;
 const app = express();
+const router = express.Router();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
@@ -24,11 +25,11 @@ app.use(function (req, res, next) {
 });
 
 try {
-  connect(process.env.MONGODB_URI, {
+  mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-    .then(console.log("DB Connected"))
+    .then(() => console.log("DB Connected"))
     .catch((err) => console.log("Error in url: ", err));
 } catch (error) {
   console.log("DB not Connected");
@@ -40,25 +41,6 @@ const AdminSchema = Schema(
       type: String,
     },
     AdminPassword: {
-      type: String,
-    },
-  },
-  { versionKey: false },
-  { strict: false }
-);
-
-const VendorSchema = Schema(
-  {
-    VendorFirstName: {
-      type: String,
-    },
-    VendorLastName: {
-      type: String,
-    },
-    VendorUsername: {
-      type: String,
-    },
-    VendorPassword: {
       type: String,
     },
   },
@@ -117,19 +99,6 @@ const ProductSchema = Schema(
     ProductLongDesc: {
       type: String,
     },
-    ProductImgs: [
-      {
-        Img1: {
-          type: String,
-        },
-        Img2: {
-          type: String,
-        },
-        Img3: {
-          type: String,
-        },
-      },
-    ],
     ProductCategory: {
       type: String,
     },
@@ -142,30 +111,15 @@ const ProductSchema = Schema(
     ProductColor: {
       type: String,
     },
-    ProductPriceTag: {
-      type: String,
-    },
     ProductSize: {
       type: String,
     },
     ProductQuantity: {
       type: Number,
     },
-    ProductReviewerUserId: [
-      {
-        RevieweruserID: { type: String },
-      },
-    ],
-    VendorId: {
-      type: String,
-    },
-    RewardCoin: {
-      type: Number,
-      default: 0,
-    },
     Status: {
       type: String,
-      default: "Pending",
+      default: "Accepted",
     },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
@@ -196,9 +150,6 @@ const OrderSchema = Schema({
   ProductQuantity: {
     type: Number,
   },
-  VendorId: {
-    type: String,
-  },
   Status: {
     type: String,
     default: "Pending",
@@ -211,7 +162,6 @@ const OrderSchema = Schema({
 );
 
 const Products = new model("Products", ProductSchema);
-const Vendor = new model("Vendor", VendorSchema);
 const Admin = new model("Admin", AdminSchema);
 const Customer = new model("Customer", CustomerSchema);
 const Orders = new model("Orders", OrderSchema);
@@ -288,52 +238,6 @@ app.post("/AdminLogin", (req, res) => {
   }
 });
 
-app.post("/VendorLogin", (req, res) => {
-  try {
-    const { VendorUsername, VendorPassword } = req.body;
-    Vendor.findOne({ $and: [{ VendorUsername }, { VendorPassword }] })
-      .then((item) => {
-        if(item !== null){
-          res.send({ message: "Vendor Login Successfully", data: item });
-        }
-        else{
-          res.send({ message: "Username or Password Incorrect", data: item });
-        }
-      })
-      .catch((err) => {
-        res.send({ message: "Can't Find Vendor" });
-      });
-  } catch {
-    res.send({ message: "Vendor Login Failed" });
-  }
-});
-
-app.post("/VendorRegister", (req, res) => {
-  try {
-    console.log(req.body);
-    const {
-      VendorFirstName,
-      VendorLastName,
-      VendorUsername,
-      VendorPassword,
-    } = req.body;
-    const Vendors = new Vendor({
-      VendorFirstName,
-      VendorLastName,
-      VendorUsername,
-      VendorPassword,
-    });
-    Vendors.save()
-      .then((item) => {
-        res.send({ message: "Vendor Registration Successfully", data: item });
-      })
-      .catch((err) => {
-        res.send({ message: "Registration Failed" });
-      });
-  } catch {
-    res.send({ message: "Registration Failed" });
-  }
-});
 
 app.post("/AddProduct", (req, res) => {
   const {
@@ -343,16 +247,14 @@ app.post("/AddProduct", (req, res) => {
     ProductMainImgUrl,
     ProductShortDesc,
     ProductLongDesc,
-    ProductImgs: { Img1, Img2, Img3 },
     ProductCategory,
     ProductSubCategory,
     ProductBrand,
     ProductSize,
     ProductColor,
-    ProductPriceTag,
     ProductQuantity,
-    VendorId,
   } = req.body;
+
   console.log(req.body);
   const UploadProduct = new Products({
     ProductName,
@@ -361,15 +263,12 @@ app.post("/AddProduct", (req, res) => {
     ProductMainImgUrl,
     ProductShortDesc,
     ProductLongDesc,
-    ProductImgs: [{ Img1, Img2, Img3 }],
     ProductCategory,
     ProductSubCategory,
     ProductBrand,
     ProductSize,
     ProductColor,
-    ProductPriceTag,
     ProductQuantity,
-    VendorId,
   });
   UploadProduct.save()
     .then((item) => {
@@ -456,21 +355,6 @@ app.get("/getproduct/:id", (req, res) => {
   }
 });
 
-app.get("/getallproduct/Vendor/:id", (req, res) => {
-  const { id } = req.params;
-  try {
-    Products.find({ VendorId: id })
-      .sort({ created_at: -1 })
-      .then((item) => {
-        res.send({ data: item });
-      })
-      .catch((err) => {
-        res.send("Can't Find Product");
-      });
-  } catch {
-    res.send("db error");
-  }
-});
 
 app.get("/getallproduct/Admin", (req, res) => {
   try {
@@ -490,6 +374,20 @@ app.post("/ProductUpdateStatus", (req, res) => {
   const { id, Statusmsg } = req.body;
   try {
     Products.updateOne({ _id: id }, { Status: Statusmsg })
+      .then((item) => {
+        res.send({ message: "Update Successfully" });
+      })
+      .catch((err) => {
+        res.send({ message: "Can't Update Product" });
+      });
+  } catch {
+    res.send("db error");
+  }
+});
+app.post("/OrderUpdateStatus", (req, res) => {
+  const { id, Statusmsg } = req.body;
+  try {
+    Orders.updateOne({ _id: id }, { Status: Statusmsg })
       .then((item) => {
         res.send({ message: "Update Successfully" });
       })
@@ -520,7 +418,6 @@ app.get("/", (req, res) => {
 });
 
 app.post("/Order/Placed", async (req, res) => {
-  console.log(req.body)
   try {
     await Promise.all(req.body.map(async (item) => {
       const {
@@ -530,7 +427,6 @@ app.post("/Order/Placed", async (req, res) => {
         ProductColor,
         ProductSize,
         ProductQuantity,
-        VendorId,
         _id,
       } = item;
 
@@ -541,7 +437,6 @@ app.post("/Order/Placed", async (req, res) => {
         ProductColor,
         ProductSize,
         ProductQuantity,
-        VendorId,
         ProductId: _id,
       });
 
@@ -555,21 +450,6 @@ app.post("/Order/Placed", async (req, res) => {
     // Handle errors and send a failure response
     console.error(error);
     res.status(500).send({ message: "Order Fail" });
-  }
-});
-
-
-app.get("/VendorList", (req, res) => {
-  try {
-    Vendor.find()
-      .then((item) => {
-        res.send({ data: item });
-      })
-      .catch((err) => {
-        res.send("Can't Find Product");
-      });
-  } catch {
-    res.send("db error");
   }
 });
 
@@ -592,3 +472,5 @@ app.get("/Orders/List", async (req, res) => {
 });
 
 app.listen(PORT, () => console.log("server is running on " + PORT));
+app.use('/.netlify/functions/index', router);
+export const handler = ServerlessHttp(app);
