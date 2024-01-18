@@ -23,7 +23,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-const connectionString = 'mongodb+srv://palashshah:palashshah@cluster0.mongodb.net/Ecommerce?retryWrites=true&w=majority';
+const connectionString = 'mongodb://palashshah:palashshah@cluster0-shard-00-00.mongodb.net:27017,cluster0-shard-00-01.mongodb.net:27017,cluster0-shard-00-02.mongodb.net:27017/Ecommerce?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin';
 
 mongoose.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
