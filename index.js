@@ -23,16 +23,17 @@ app.use(function (req, res, next) {
   next();
 });
 
-const connectionString = 'mongodb://palashshah:palashshah@cluster0-shard-00-00.mongodb.net:27017,cluster0-shard-00-01.mongodb.net:27017,cluster0-shard-00-02.mongodb.net:27017/Ecommerce?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin';
-
-mongoose.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log('Connected to MongoDB Atlas');
-  })
-  .catch((error) => {
-    console.error('Error connecting to MongoDB Atlas:', error.message);
-  });
-
+try {
+  mongoose
+    .connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(()=>console.log("DB Connected"))
+    .catch((err) => console.log("Error in url: ", err));
+} catch (error) {
+  console.log("DB not Connected");
+}
 const AdminSchema = Schema(
   {
     AdminUsername: {
@@ -468,4 +469,6 @@ app.get("/Orders/List", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log("server is running on " + PORT));
+app.listen(PORT, function () {
+  console.log(`Backend is running on Port: ${PORT}`);
+});
