@@ -1,12 +1,11 @@
 import express from "express";
-import mongoose,{ model, Schema } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
-import ServerlessHttp from "serverless-http";
+
 dotenv.config();
 const PORT = process.env.PORT || 3001;
 const app = express();
-const router = express.Router();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
@@ -25,10 +24,11 @@ app.use(function (req, res, next) {
 });
 
 try {
-  mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  mongoose
+    .connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
     .then(() => console.log("DB Connected"))
     .catch((err) => console.log("Error in url: ", err));
 } catch (error) {
@@ -128,37 +128,38 @@ const ProductSchema = Schema(
   { strict: false }
 );
 
-const OrderSchema = Schema({
-  UserId:{
-    type: String,
+const OrderSchema = Schema(
+  {
+    UserId: {
+      type: String,
+    },
+    ProductId: {
+      type: String,
+    },
+    ProductName: {
+      type: String,
+    },
+    ProductPrice: {
+      type: Number,
+    },
+    ProductColor: {
+      type: String,
+    },
+    ProductSize: {
+      type: String,
+    },
+    ProductQuantity: {
+      type: Number,
+    },
+    Status: {
+      type: String,
+      default: "Pending",
+    },
+    created_at: { type: Date, default: Date.now },
+    updated_at: { type: Date, default: Date.now },
   },
-  ProductId:{
-    type: String,
-  },
-  ProductName: {
-    type: String,
-  },
-  ProductPrice: {
-    type: Number,
-  },
-  ProductColor: {
-    type: String,
-  },
-  ProductSize: {
-    type: String,
-  },
-  ProductQuantity: {
-    type: Number,
-  },
-  Status: {
-    type: String,
-    default: "Pending",
-  },
-  created_at: { type: Date, default: Date.now },
-  updated_at: { type: Date, default: Date.now },
-},
-{ versionKey: false },
-{ strict: false }
+  { versionKey: false },
+  { strict: false }
 );
 
 const Products = new model("Products", ProductSchema);
@@ -223,10 +224,9 @@ app.post("/AdminLogin", (req, res) => {
     const { AdminUsername, AdminPassword } = req.body;
     Admin.findOne({ $and: [{ AdminUsername }, { AdminPassword }] })
       .then((item) => {
-        if(item !== null ){
+        if (item !== null) {
           res.send({ message: "Admin Login Successfully", data: item });
-        }
-        else{
+        } else {
           res.send({ message: "Username or Password Incorrect", data: item });
         }
       })
@@ -237,7 +237,6 @@ app.post("/AdminLogin", (req, res) => {
     res.send({ message: "Admin Login Failed" });
   }
 });
-
 
 app.post("/AddProduct", (req, res) => {
   const {
@@ -355,7 +354,6 @@ app.get("/getproduct/:id", (req, res) => {
   }
 });
 
-
 app.get("/getallproduct/Admin", (req, res) => {
   try {
     Products.find()
@@ -399,7 +397,7 @@ app.post("/OrderUpdateStatus", (req, res) => {
   }
 });
 app.post("/UpdateProduct", (req, res) => {
-  const {_id} = req.body;
+  const { _id } = req.body;
   try {
     Products.updateOne({ _id: _id }, req.body)
       .then((item) => {
@@ -419,30 +417,31 @@ app.get("/", (req, res) => {
 
 app.post("/Order/Placed", async (req, res) => {
   try {
-    await Promise.all(req.body.map(async (item) => {
-      const {
-        UserId,
-        ProductName,
-        ProductPrice,
-        ProductColor,
-        ProductSize,
-        ProductQuantity,
-        _id,
-      } = item;
+    await Promise.all(
+      req.body.map(async (item) => {
+        const {
+          UserId,
+          ProductName,
+          ProductPrice,
+          ProductColor,
+          ProductSize,
+          ProductQuantity,
+          _id,
+        } = item;
 
-      const Order = new Orders({
-        UserId,
-        ProductName,
-        ProductPrice,
-        ProductColor,
-        ProductSize,
-        ProductQuantity,
-        ProductId: _id,
-      });
+        const Order = new Orders({
+          UserId,
+          ProductName,
+          ProductPrice,
+          ProductColor,
+          ProductSize,
+          ProductQuantity,
+          ProductId: _id,
+        });
 
-      // Save the document to the database
-      await Order.save();
-    }));
+        await Order.save();
+      })
+    );
 
     // Send a success response
     res.send({ message: "Order Placed" });
@@ -472,5 +471,3 @@ app.get("/Orders/List", async (req, res) => {
 });
 
 app.listen(PORT, () => console.log("server is running on " + PORT));
-app.use('/.netlify/functions/index', router);
-export const handler = ServerlessHttp(app);
