@@ -23,17 +23,15 @@ app.use(function (req, res, next) {
   next();
 });
 
-try {
-  mongoose
-    .connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
-    .then(() => console.log("DB Connected"))
-    .catch((err) => console.log("Error in url: ", err));
-} catch (error) {
-  console.log("DB not Connected");
-}
+const connectionString = 'mongodb+srv://palashshah:palashshah@cluster0.mongodb.net/Ecommerce?retryWrites=true&w=majority';
+
+mongoose.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log('Connected to MongoDB Atlas');
+  })
+  .catch((error) => {
+    console.error('Error connecting to MongoDB Atlas:', error.message);
+  });
 
 const AdminSchema = Schema(
   {
