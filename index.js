@@ -2,6 +2,10 @@ import express from "express";
 import mongoose, { model, Schema } from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
+import { v2 as cloudinary } from "cloudinary";
+import multer from "multer";
+import { memoryStorage } from "multer";
+import fs from "fs/promises";
 
 dotenv.config();
 const PORT = process.env.PORT || 3001;
@@ -29,7 +33,7 @@ try {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     })
-    .then(()=>console.log("DB Connected"))
+    .then(() => console.log("DB Connected"))
     .catch((err) => console.log("Error in url: ", err));
 } catch (error) {
   console.log("DB not Connected");
@@ -166,6 +170,15 @@ const Admin = new model("Admin", AdminSchema);
 const Customer = new model("Customer", CustomerSchema);
 const Orders = new model("Orders", OrderSchema);
 
+cloudinary.config({
+  cloud_name: "dh5b8fjsp",
+  api_key: "398511288372265",
+  api_secret: "etL1OA3kXp8bhGGcGiYHRIOa5Q0",
+});
+
+const storage = memoryStorage();
+const upload = multer({ storage: storage });
+
 app.post("/Login", (req, res) => {
   try {
     const { Email, Password } = req.body;
@@ -218,7 +231,6 @@ app.post("/Register", (req, res) => {
 });
 
 app.post("/AdminLogin", (req, res) => {
-  console.log(req.body);
   try {
     const { AdminUsername, AdminPassword } = req.body;
     Admin.findOne({ $and: [{ AdminUsername }, { AdminPassword }] })
@@ -237,46 +249,65 @@ app.post("/AdminLogin", (req, res) => {
   }
 });
 
-app.post("/AddProduct", (req, res) => {
-  const {
-    ProductName,
-    ProductMRP,
-    ProductPrice,
-    ProductMainImgUrl,
-    ProductShortDesc,
-    ProductLongDesc,
-    ProductCategory,
-    ProductSubCategory,
-    ProductBrand,
-    ProductSize,
-    ProductColor,
-    ProductQuantity,
-  } = req.body;
+app.post(
+  "/AddProduct",
+  upload.single("ProductMainImgUrl"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).send("No file uploaded.");
+      }
+      const {
+        ProductName,
+        ProductMRP,
+        ProductPrice,
+        ProductShortDesc,
+        ProductLongDesc,
+        ProductCategory,
+        ProductSubCategory,
+        ProductBrand,
+        ProductSize,
+        ProductColor,
+        ProductQuantity,
+      } = req.body;
 
-  console.log(req.body);
-  const UploadProduct = new Products({
-    ProductName,
-    ProductMRP,
-    ProductPrice,
-    ProductMainImgUrl,
-    ProductShortDesc,
-    ProductLongDesc,
-    ProductCategory,
-    ProductSubCategory,
-    ProductBrand,
-    ProductSize,
-    ProductColor,
-    ProductQuantity,
-  });
-  UploadProduct.save()
-    .then((item) => {
-      res.send({ message: "Product Added", Data: item });
-    })
-    .catch((err) => {
-      console.log("unable to save to db", err);
-      res.send("unable to save to database");
-    });
-});
+      // Convert the buffer to a base64-encoded string
+      const base64String = req.file.buffer.toString("base64");
+
+      // Upload the image to Cloudinary
+      const result = await cloudinary.uploader.upload(
+        `data:image/png;base64,${base64String}`,
+        {
+          folder: "Ecommerce", // Optional: set a folder in Cloudinary
+          public_id: `product_images_${Date.now()}`, // Optional: set a unique identifier for the image
+        }
+      );
+
+      const ProductMainImgUrl = result.secure_url;
+
+      const UploadProduct = new Products({
+        ProductName,
+        ProductMRP,
+        ProductPrice,
+        ProductMainImgUrl,
+        ProductShortDesc,
+        ProductLongDesc,
+        ProductCategory,
+        ProductSubCategory,
+        ProductBrand,
+        ProductSize,
+        ProductColor,
+        ProductQuantity,
+      });
+
+      const savedProduct = await UploadProduct.save();
+      res.send({ message: "Product Added", Data: savedProduct });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Internal Server Error");
+    }
+  }
+);
 
 app.delete("/deleteProduct/:id", (req, res) => {
   const { id } = req.params;
